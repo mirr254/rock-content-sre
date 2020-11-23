@@ -1,11 +1,38 @@
-FROM wordpress:php7.1-apache
+FROM wordpress:5.5.3-php7.3-apache AS build
 
-#update package being used
-RUN apt-get update
+WORKDIR /usr/src/wp-cli/
+#install wp-cli
+RUN curl -Os https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar wp
 
-COPY scripts ./
-RUN bash plugins.sh
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    unzip && \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
+    rm -rf /var/lib/apt/lists/*
 
-ADD https://downloads.wordpress.org/plugin/rock-convert.2.5.0.zip /opt/bitnami/wordpress/wp-content/plugins
+WORKDIR /usr/src/app/
+COPY scripts/ /usr/src/app/
+RUN sh install.sh && \
+    rm -rf \
+    install.sh \
+    plugins.txt 
 
-ENTRYPOINT [ "/app-entrypoint.sh" ]
+###
+
+FROM wordpress:5.5.3-php7.3-apache
+
+COPY --from=build /usr/src/wp-cli/wp /usr/local/bin/
+COPY --from=build /usr/src/app/ /usr/src/wordpress/wp-content/
+
+RUN cd /usr/src/wordpress/wp-content/ && \
+    rm -rf \
+    plugins/akismet/ \
+    plugins/hello.php \
+    themes/twentyseventeen/ \
+    themes/twentynineteen/ \
+    themes/twentytwenty/ 
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["apache2-foreground"]

@@ -1,117 +1,55 @@
-locals {
-  cluster_name = "sre-eks-${random_string.suffix.result}"
-  cluster_version = 1.18
-}
-
-resource "random_string" "suffix" {
-  length   = 5
-  special  = false
-}
-
-module "vpc" {
-  source          = "terraform-aws-modules/vpc/aws"
-  version         = "2.63.0"
-
-  name            = "sre-vpc"
-  cidr            = "10.0.0.0/16"
-  azs             = data.aws_availability_zones.available.names
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
-
-  enable_nat_gateway   = true
-  single_nat_gateway   = true 
-  enable_dns_hostnames = true
-
-  tags = {
-    "kubernetes.io/cluster/${local.cluster_name}"  = "shared"
-  }
-
-  public_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}"  = "shared"
-    "kubernetes.io/role/elb"                       = "1"
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}"  = "shared"
-    "kubernetes.io/role/internal_elb"              = "1"
-  }
-
-
-}
-
-module "eks" {
-  source       = "terraform-aws-modules/eks/aws"
-  cluster_name = local.cluster_name
-  cluster_version = local.cluster_version
-  subnets      = module.vpc.private_subnets
-  vpc_id        = module.vpc.vpc_id
-
-  tags = {
-    Environment = "Dev"
-    GitRepo     = "saiju-tf-k8s-docker"
-    GitOrg      = "mirr254"
-  }
-
-
-  worker_groups = [
-    {
-      name                          = "worker-group-1"
-      instance_type                 = "t2.small"
-      asg_max_size                  = 4 
-      asg_desired_capacity          = 2
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
-    },
-
-    {
-      name                          = "worker-group-2"
-      instance_type                 = "t2.medium"
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
-      asg_max_size                  = 2 
-      asg_desired_capacity          = 1
-    }
-  ]
-
-}
-
-resource "aws_security_group"  "worker_group_mgmt_one" {
-  name_prefix  = "worker_group_mgmt_one"
-  vpc_id       = module.vpc.vpc_id
-
-  ingress {
-    from_port  = 22
-    to_port    = 22
-    protocol   = "tcp"
-
-    cidr_blocks = [
-      "10.0.0.0/8",
-    ]
+provider "helm" {
+  kubernetes {
+        config_context_cluster   = "minikube"
   }
 }
 
-resource "aws_security_group" "all_worker_mgmt" {
-  name_prefix   = "all_worker_mgmt"
-  vpc_id        = module.vpc.vpc_id
-
-  ingress {
-    from_port  = 22
-    to_port    = 22
-    protocol   = "tcp"
-
-    cidr_blocks = [
-      "10.0.0.0/8",
-      "172.16.0.0/12",
-      "192.168.0.0/16"
-    ]
+resource "kubernetes_namespace" "monitoring_namespace" {
+  metadata {
+        name = var.monitoring_namespace
   }
 }
 
-provider "kubernetes" {
-  load_config_file          = "false"
-  host                      = data.aws_eks_cluster.cluster.endpoint
-  token                     = data.aws_eks_cluster_auth.cluster.token
-  cluster_ca_certificate    = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+resource "kubernetes_namespace" "app_namespace" {
+  metadata {
+        name = var.app_namespace
+  }
 }
 
-provider "aws" {
-  region  = var.region
+resource "helm_release" "prometheus" {
+  name       = "prometheus-release"
+  repository = "https://prometheus-community.github.io/helm-charts" 
+  chart      = "prometheus"
+  namespace  = kubernetes_namespace.monitoring_namespace.id
+
 }
+
+resource "helm_release" "grafana" {
+  name       = "grafana-release"
+  repository = "https://grafana.github.io/helm-charts" 
+  chart      = "grafana"
+  namespace  = kubernetes_namespace.monitoring_namespace.id
+
+  # values = [
+  #   "${file("values.yaml")}"
+  # ]
+
+}
+
+resource "helm_release" "local_deploy_chart" {
+  name       = "wp-rock-chart"
+  chart      = "../wp-rock-sre"
+  namespace  = kubernetes_namespace.app_namespace.id
+}
+
+#use this module to get the grafana password from Secret store
+# module "grafana_password" {
+#   source    = "gearnode/get-secret/kubernetes"
+#   version   = "0.3.1"
+#   namespace = kubernetes_namespace.monitoring_namespace.id
+#   name      = "grafana"
+#   key       = "admin-password"
+#   context   = "minikube"
+
+#   depends_on  = [helm_release.grafana]
+# }

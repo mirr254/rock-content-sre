@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wp-rock-sre.fullname" . }}
+  labels:
+    app: wordpress
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: wordpress
+    tier: frontend
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "wp-rock-sre.fullname" . }}-pvc
+  labels:
+    app: wordpress
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: {{ include "wp-rock-sre.fullname" . }}-wordpress
+  labels:
+    app: wordpress
+spec:
+  replicas: {{ .Values.appReplicaCount }}
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: wordpress
+        imagePullPolicy: Always 
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: wordpress-mysql
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "wp-rock-sre.fullname" . }}-mysql-passwd
+              key: password
+        ports:
+        - containerPort: 8080
+          name: wordpress
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ include "wp-rock-sre.fullname" . }}-pvc
