@@ -30,9 +30,9 @@ resource "helm_release" "grafana" {
   chart      = "grafana"
   namespace  = kubernetes_namespace.monitoring_namespace.id
 
-  # values = [
-  #   "${file("values.yaml")}"
-  # ]
+  values = [
+    file("values.yaml")
+  ]
 
 }
 
@@ -47,9 +47,8 @@ resource "helm_release" "local_deploy_chart" {
 #   source    = "gearnode/get-secret/kubernetes"
 #   version   = "0.3.1"
 #   namespace = kubernetes_namespace.monitoring_namespace.id
-#   name      = "grafana"
+#   name      = "grafana-release"
 #   key       = "admin-password"
 #   context   = "minikube"
 
-#   depends_on  = [helm_release.grafana]
 # }

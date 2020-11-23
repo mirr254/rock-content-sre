@@ -33,3 +33,18 @@ So to use our custom image without uploading it, you can follow these steps:
 - To check the resources that are going to be created run `terraform plan`. Once you validate resources are okay to create,
 - Run `terraform apply -auto-approve`
 
+## Accessing Grafana Dashboard
+Since the terraform script we have is deployed to `monitoring` namespace, we can get the grafana service that will help us access the dashboard. To do that   
+- list the services running there 
+   ```
+    ➜  terraform git:(main) kubectl get svc -n monitoring
+NAME                                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+grafana-release                         ClusterIP   10.103.49.125   <none>        3000/TCP     3m41s
+prometheus-release-alertmanager         ClusterIP   10.101.167.72   <none>        80/TCP     3m33s
+prometheus-release-kube-state-metrics   ClusterIP   10.99.84.176    <none>        8080/TCP   3m33s
+prometheus-release-node-exporter        ClusterIP   None            <none>        9100/TCP   3m33s
+   ```
+
+- To access the dashboard in the browser, we have to port-forward the requests from `grafana-release` service to our localhost. Run
+`kubectl -n monitoring port-forward service/grafana-release 3000:3000`
+
