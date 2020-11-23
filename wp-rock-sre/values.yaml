@@ -3,19 +3,20 @@ nginx:
 
 #wordpress database server
 wordpress-mysql:
-  enabled: true
+  enabled: false
+
   image:
     repository: mysql
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: 5.7
 
   resources: 
     limits:
       cpu: 100m
-      memory: 128Mi
+      memory: 158Mi
     requests:
       cpu: 100m
-      memory: 128Mi
+      memory: 158Mi
 
 #wordpress site
 wordpress-sre:

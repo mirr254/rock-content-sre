@@ -12,11 +12,11 @@ spec:
       - path: /
         backend:
           serviceName: grafana-release
-          servicePort: http
+          servicePort: 3000
   - host: wordpress.minikube
     http:
       paths:
       - path: /
         backend:
           serviceName: wordpress-sre
-          servicePort: http
+          servicePort: 8080

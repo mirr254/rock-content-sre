@@ -14,11 +14,12 @@ Create a Minikube cluster before getting started
   `minikube start --cpus 2 --memory 5400 --driver=virtualbox`
 
 ## Building the image
-There are 2 ways to use the image defined in the `docker` of this repo.
-1. Building and running it locally
+There are 2 ways to use the image defined in the `docker` directory of this repo.
+1. Building, running, and using it locally
 2. Building and pushing it to an image repository.
 
-We are going to use the first scenario in our case. To do this, we will reuse the Docker daemon from Minikube with `eval $(minikube docker-env)`  
+### Building locally (development)
+To do this, we will reuse the Docker daemon from Minikube with `eval $(minikube docker-env)`  
 So to use our custom image without uploading it, you can follow these steps:
 
 - Navigate to docker `folder`
@@ -26,6 +27,11 @@ So to use our custom image without uploading it, you can follow these steps:
 - Build the image with the Docker daemon of Minikube `(docker build -t <image name> .)` eg `docker build -t kungus/wp-sre:1.0.1`
 - Set the image in the pod spec like the build tag (eg kungus/wp-sre:1)
 - We then set the `imagePullPolicy` to `Never`, otherwise Kubernetes will try to download the image.
+
+### Building and pushing the image to a remote repository
+- Build and tag the image `(docker build -t <image name> .)` eg `docker build -t kungus/wp-sre:1.0.1`
+- Push the image to a repository `docker push kungus/wp-sre:1.0.1`
+- You can set the `imagePullPolicy` to `Always`, and allow Kubernetes to always try and download the latest image
 
 ## Creating the Infrastructure
 
@@ -64,3 +70,6 @@ The process is the same with the above instructions.
 - visit `http://localhost:8080` to access the wordpress website
 
 
+minikube service --url $SERVICE
+
+minikube tunnel

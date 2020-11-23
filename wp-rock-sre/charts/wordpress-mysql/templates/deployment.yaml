@@ -1,4 +1,4 @@
-apiVersion: apps/v1 
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: {{ include "wordpress-mysql.fullname" . }}
@@ -9,6 +9,8 @@ spec:
   selector:
     matchLabels:
       {{- include "wordpress-mysql.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -33,10 +35,9 @@ spec:
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
-        resources:
-          {{- toYaml .Values.resources | nindent 12 }}
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
           claimName: {{ include "wordpress-mysql.name" . }}
-      
+
+        

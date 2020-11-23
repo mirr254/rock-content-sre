@@ -11,12 +11,30 @@ dashboardProviders:
       options:
         path: /var/lib/grafana/dashboards/default
 
+datasources: 
+datasources.yaml:
+  apiVersion: 1
+  datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus-release-server
+    access: proxy
+    isDefault: true
+
 dashboards:
-   default:
-     node-exporter:
-       gnetId: 1860
-       revision: 14
-       datasource: Prometheus
+    kube-dash:
+      gnetId: 6663
+      revision: 1
+      datasource: Prometheus
+    kube-official-dash:
+      gnetId: 2
+      revision: 1
+      datasource: Prometheus
+    default:
+      node-exporter:
+        gnetId: 1860
+        revision: 14
+        datasource: Prometheus
 
 plugins:
-- 
+- grafana-kubernetes-app
