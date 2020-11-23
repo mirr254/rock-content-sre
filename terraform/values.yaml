@@ -10,10 +10,13 @@ dashboardProviders:
       editable: true
       options:
         path: /var/lib/grafana/dashboards/default
-        
+
 dashboards:
    default:
      node-exporter:
        gnetId: 1860
        revision: 14
        datasource: Prometheus
+
+plugins:
+- 
