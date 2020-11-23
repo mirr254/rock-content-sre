@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "nginx.fullname" . }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: grafana.minikube
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana-release
+          servicePort: http
+  - host: wordpress.minikube
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: wordpress-sre
+          servicePort: http
