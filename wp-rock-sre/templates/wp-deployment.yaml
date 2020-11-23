@@ -25,7 +25,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Gi
 
 ---
 
@@ -50,9 +50,9 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: kungus/wp-sre:1
+      - image: kungus/wp-sre:1.0.0
         name: wordpress
-        imagePullPolicy: Never #This one is used to make sure we use the image build locally and k8s will not try to download the image from image repo
+        imagePullPolicy: Always #This one is used to make sure we use the image build locally and k8s will not try to download the image from image repo
         env:
         - name: WORDPRESS_DB_HOST
           value: wordpress-mysql
@@ -64,6 +64,12 @@ spec:
         ports:
         - containerPort: 8080
           name: wordpress
+        # command:
+        #   - /bin/bash
+        #   - -c 
+        #   - |
+        #       nami_initialize apache php mysql-client wordpress &
+        #       wp plugin activate rock-convert 
         volumeMounts:
         - name: wordpress-persistent-storage
           mountPath: /var/www/html

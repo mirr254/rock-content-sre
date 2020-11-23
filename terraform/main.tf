@@ -6,7 +6,13 @@ provider "helm" {
 
 resource "kubernetes_namespace" "monitoring_namespace" {
   metadata {
-        name = "monitoring"
+        name = var.monitoring_namespace
+  }
+}
+
+resource "kubernetes_namespace" "app_namespace" {
+  metadata {
+        name = var.app_namespace
   }
 }
 
@@ -29,3 +35,21 @@ resource "helm_release" "grafana" {
   # ]
 
 }
+
+resource "helm_release" "local_deploy_chart" {
+  name       = "wp-rock-chart"
+  chart      = "../wp-rock-sre"
+  namespace  = kubernetes_namespace.app_namespace.id
+}
+
+#use this module to get the grafana password from Secret store
+# module "grafana_password" {
+#   source    = "gearnode/get-secret/kubernetes"
+#   version   = "0.3.1"
+#   namespace = kubernetes_namespace.monitoring_namespace.id
+#   name      = "grafana"
+#   key       = "admin-password"
+#   context   = "minikube"
+
+#   depends_on  = [helm_release.grafana]
+# }

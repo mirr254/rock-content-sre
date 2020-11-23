@@ -9,6 +9,10 @@ Site Reliability Engineer - Rock Content Technical Test
 - Install Terraform v0.13+
 - Install docker version 19+
 
+## Prep and build minikube
+Create a Minikube cluster before getting started
+  `minikube start --cpus 2 --memory 5400 --driver=virtualbox`
+
 ## Building the image
 There are 2 ways to use the image defined in the `docker` of this repo.
 1. Building and running it locally
@@ -23,6 +27,9 @@ So to use our custom image without uploading it, you can follow these steps:
 - Set the image in the pod spec like the build tag (eg kungus/wp-sre:1)
 - We then set the `imagePullPolicy` to `Never`, otherwise Kubernetes will try to download the image.
 
-## Prep and build minikube
-Create a Minikube cluster before getting started
-  `minikube start --cpus 2 --memory 5400 --driver=virtualbox`
+## Creating the Infrastructure
+
+- Navigate to terraform folder by `cd terraform`
+- To check the resources that are going to be created run `terraform plan`. Once you validate resources are okay to create,
+- Run `terraform apply -auto-approve`
+
