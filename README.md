@@ -23,7 +23,7 @@ So to use our custom image without uploading it, you can follow these steps:
 
 - Navigate to docker `folder`
 - Set the environment variables with `eval $(minikube docker-env)`
-- Build the image with the Docker daemon of Minikube `(docker build -t <image name> .)` eg `docker build -t kungus/wp-sre:1`
+- Build the image with the Docker daemon of Minikube `(docker build -t <image name> .)` eg `docker build -t kungus/wp-sre:1.0.1`
 - Set the image in the pod spec like the build tag (eg kungus/wp-sre:1)
 - We then set the `imagePullPolicy` to `Never`, otherwise Kubernetes will try to download the image.
 
