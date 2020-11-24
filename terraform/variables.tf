@@ -19,16 +19,7 @@ variable "dashboard_yaml" {
   default = ""
 }
 
-variable "helm_install_timeout" {
-  default = 1800
-}
-
 variable "name" {
-  type    = string
-  default = "grafana"
-}
-
-variable "namespace" {
   type    = string
   default = "grafana"
 }

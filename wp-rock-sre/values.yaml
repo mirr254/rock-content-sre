@@ -1,7 +1,7 @@
 nginx:
   enabled: true 
 
-#wordpress database server
+#values for the database server
 wordpress-mysql:
   enabled: true
 
@@ -18,7 +18,7 @@ wordpress-mysql:
       cpu: 100m
       memory: 158Mi
 
-#wordpress site
+#values for the wordpress site
 wordpress-sre:
   enabled: true
   image:
@@ -30,7 +30,7 @@ wordpress-sre:
     type: LoadBalancer
     port: 80
 
-#main chart's vals
+#main chart's values
 nameOverride: ""
 fullnameOverride: ""
 
