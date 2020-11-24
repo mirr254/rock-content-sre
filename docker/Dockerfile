@@ -34,5 +34,8 @@ RUN cd /usr/src/wordpress/wp-content/ && \
     themes/twentynineteen/ \
     themes/twentytwenty/ 
 
+EXPOSE 8080
+EXPOSE 80
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]

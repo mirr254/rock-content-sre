@@ -17,11 +17,29 @@ resource "kubernetes_namespace" "app_namespace" {
 }
 
 resource "helm_release" "prometheus" {
-  name       = "prometheus-release"
+  name       = "prometheus"
   repository = "https://prometheus-community.github.io/helm-charts" 
   chart      = "prometheus"
   namespace  = kubernetes_namespace.monitoring_namespace.id
 
+}
+
+data "template_file" "template_grafana_yaml" {
+  template = file("${path.module}/values.yaml.tmpl")
+
+  vars = {
+    dashboard_yaml              = var.dashboard_yaml
+    persistence_enabled         = var.persistence_enabled
+    prometheus_service_endpoint = var.prometheus_service_endpoint
+    storage_class               = var.storage_class
+    storage_size                = var.storage_size
+  }
+}
+
+resource "null_resource" "generate_grafana_yaml" {
+  provisioner "local-exec" {
+    command = "echo '${data.template_file.template_grafana_yaml.rendered}' > ${path.module}/values.yaml"
+  }
 }
 
 resource "helm_release" "grafana" {
@@ -31,8 +49,28 @@ resource "helm_release" "grafana" {
   namespace  = kubernetes_namespace.monitoring_namespace.id
 
   values = [
-    file("values.yaml")
+    file("${path.module}/values.yaml")
   ]
+
+  set {
+    name  = "adminUser"
+    value = var.admin_user
+  }
+
+  set {
+    name  = "adminPassword"
+    value = var.admin_password
+  }
+
+  set {
+    name  = "persistance_enabled"
+    value = var.persistence_enabled
+  }
+
+  set {
+    name  = "persistance_storage_class"
+    value = var.storage_class
+  }
 
 }
 
@@ -41,14 +79,3 @@ resource "helm_release" "local_deploy_chart" {
   chart      = "../wp-rock-sre"
   namespace  = kubernetes_namespace.app_namespace.id
 }
-
-#use this module to get the grafana password from Secret store
-# module "grafana_password" {
-#   source    = "gearnode/get-secret/kubernetes"
-#   version   = "0.3.1"
-#   namespace = kubernetes_namespace.monitoring_namespace.id
-#   name      = "grafana-release"
-#   key       = "admin-password"
-#   context   = "minikube"
-
-# }

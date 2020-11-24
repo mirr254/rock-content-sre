@@ -1,6 +1,8 @@
 # rock-content-sre
 Site Reliability Engineer - Rock Content Technical Test
 
+This task 
+
 ## Prerequisites
 
 - Download and configure Minikube by following this [documentation](https://kubernetes.io/docs/tasks/tools/install-minikube/).
@@ -22,7 +24,7 @@ There are 2 ways to use the image defined in the `docker` directory of this repo
 To do this, we will reuse the Docker daemon from Minikube with `eval $(minikube docker-env)`  
 So to use our custom image without uploading it, you can follow these steps:
 
-- Navigate to docker `folder`
+- Navigate to `docker` folder by running `cd docker`
 - Set the environment variables with `eval $(minikube docker-env)`
 - Build the image with the Docker daemon of Minikube `(docker build -t <image name> .)` eg `docker build -t kungus/wp-sre:1.0.1`
 - Set the image in the pod spec like the build tag (eg kungus/wp-sre:1)
@@ -34,6 +36,10 @@ So to use our custom image without uploading it, you can follow these steps:
 - You can set the `imagePullPolicy` to `Always`, and allow Kubernetes to always try and download the latest image
 
 ## Creating the Infrastructure
+
+We are going to create the infrastructure using terraform. And using helm provider to install and configure grafana and prometheus declaratively and have complete IaC.   
+This is advantageous as it is also used to automatically add dashboards and install plugins on grafana initial grafana installation.  
+Both wordpress service and MYSQl service have are also being deployed via Helm. This brings in consistency in installation of both monitoring tools and the application. 
 
 - Navigate to terraform folder by `cd terraform`
 - To check the resources that are going to be created run `terraform plan`. Once you validate resources are okay to create,
@@ -61,15 +67,12 @@ prometheus-release-node-exporter        ClusterIP   None            <none>      
 
 NOTE: Don't forget to replace `<grafana-namespace>` with the namespace defined/used in terraform build process.
 
-### Accessing wordpress Website
+## Accessing wordpress Website
 The process is the same with the above instructions.   
 - Get the services running from `app` namespace
-`kubectl get svc -n <app-namespace>`
-- Use kubernetes Port-forward to access the website   
-`kubectl -n <grafana-namespace> port-forward service/grafana-release 8000:8080`  
+`kubectl get svc -n <app-namespace>`  
+
+- Use kubernetes Port-forward to access the website     
+
+  `kubectl -n <grafana-namespace> port-forward service/grafana-release 8000:8080`  
 - visit `http://localhost:8080` to access the wordpress website
-
-
-minikube service --url $SERVICE
-
-minikube tunnel

@@ -3,7 +3,7 @@ nginx:
 
 #wordpress database server
 wordpress-mysql:
-  enabled: false
+  enabled: true
 
   image:
     repository: mysql
@@ -27,8 +27,8 @@ wordpress-sre:
     tag: 1.0.1
 
   service:
-    type: NodePort
-    port: 8080
+    type: LoadBalancer
+    port: 80
 
 #main chart's vals
 nameOverride: ""
