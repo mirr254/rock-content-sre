@@ -32,7 +32,7 @@ dashboards:
 
 persistence:
   enabled: true
-  storageClassName: default
+  storageClassName: terraform-sc
   accessModes:
     - ReadWriteOnce
   size: 4Gi

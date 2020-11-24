@@ -27,8 +27,8 @@ wordpress-sre:
     tag: 1.0.1
 
   service:
-    type: LoadBalancer
-    port: 80
+    type: NodePort #LoadBalancer
+    port: 8080
 
 #main chart's values
 nameOverride: ""

@@ -1,13 +1,11 @@
 # rock-content-sre
 Site Reliability Engineer - Rock Content Technical Test
 
-This task 
-
 ## Prerequisites
 
-- Download and configure Minikube by following this [documentation](https://kubernetes.io/docs/tasks/tools/install-minikube/).
+- Download and configure Minikube v1.15+ by following this [documentation](https://kubernetes.io/docs/tasks/tools/install-minikube/).
 - Download and configure Helm3 using your package manager or do it manually from the releases.
-- Download and install kubectl by following [these steps](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+- Download and install kubectl 1.17+ by following [these steps](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 - Install Terraform v0.13+
 - Install docker version 19+
 
@@ -62,7 +60,8 @@ prometheus-release-node-exporter        ClusterIP   None            <none>      
 - To access the dashboard in the browser, we have to port-forward the requests from `grafana-release` service to our localhost. Run  
 `kubectl -n <grafana-namespace> port-forward service/grafana-release 3000:80`
 - Using a browser visit `http://localhost:3000` to access grafana UI
-- To get the grafana dashboard password, fetch it from the k8s `Secrets` by running the following command  
+- Grafana dashboard's `username` and `password` are set during infrastructure creation using the file located at `terraform/terraform.tfvars`
+- We can verify that from the k8s `Secrets` by running the following command  
 `kubectl get secret -n <grafana-namespace> grafana-release -o jsonpath="{.data.admin-password}" | base64 --decode ; echo`
 
 NOTE: Don't forget to replace `<grafana-namespace>` with the namespace defined/used in terraform build process.

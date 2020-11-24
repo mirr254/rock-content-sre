@@ -24,6 +24,14 @@ resource "helm_release" "prometheus" {
 
 }
 
+resource "kubernetes_storage_class" "sc" {
+  metadata {
+    name = "terraform-sc"
+  }
+  storage_provisioner = "k8s.io/minikube-hostpath"
+  reclaim_policy      = "Retain"
+}
+
 data "template_file" "template_grafana_yaml" {
   template = file("${path.module}/values.yaml.tmpl")
 
@@ -31,7 +39,7 @@ data "template_file" "template_grafana_yaml" {
     dashboard_yaml              = var.dashboard_yaml
     persistence_enabled         = var.persistence_enabled
     prometheus_service_endpoint = var.prometheus_service_endpoint
-    storage_class               = var.storage_class
+    storage_class               = kubernetes_storage_class.sc.metadata.0.name
     storage_size                = var.storage_size
   }
 }
