@@ -27,6 +27,8 @@ spec:
         env:
         - name: WORDPRESS_DB_HOST
           value: wordpress-mysql
+        - name: WORDPRESS_DEBUG # this is used for development purpose only and should be removed on production
+          value: 1
         - name: WORDPRESS_DB_PASSWORD
           valueFrom:
             secretKeyRef:
