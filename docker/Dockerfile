@@ -28,11 +28,8 @@ COPY --from=build /usr/src/app/ /usr/src/wordpress/wp-content/
 
 RUN cd /usr/src/wordpress/wp-content/ && \
     rm -rf \
-    plugins/akismet/ \
-    plugins/hello.php \
     themes/twentyseventeen/ \
-    themes/twentynineteen/ \
-    themes/twentytwenty/ 
+    themes/twentynineteen/ 
 
 EXPOSE 8080
 EXPOSE 80

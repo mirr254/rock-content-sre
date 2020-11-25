@@ -24,7 +24,7 @@ wordpress-sre:
   image:
     repository: kungus/wp-sre
     pullPolicy: Always
-    tag: 1.0.1
+    tag: 1.0.2
 
   service:
     type: NodePort #LoadBalancer
