@@ -14,7 +14,11 @@ This repo is used deploy the named services laveraging the use of Infrastructure
 Create a Minikube cluster before getting started
   `minikube start --cpus 2 --memory 5400 --driver=virtualbox`
 
-## Building the image
+## Docker
+
+Docker image has multi-stage build. This is perfect with with, reducing attack surface, smaller image size, easier static analysis and more.
+
+### Building the image
 There are 2 ways to use the image defined in the `docker` directory of this repo.
 1. Building, running, and using it locally
 2. Building and pushing it to an image repository.
@@ -34,7 +38,8 @@ To use our custom image without uploading it, you can follow these steps:
 - Push the image to a repository `docker push kungus/wp-sre:1.0.1`
 - You can set the `imagePullPolicy` to `Always`, and allow Kubernetes to always try and download the latest image
 
-## Creating the Infrastructure
+## Infrastructure
+### Creating the Infrastructure
 
 We are going to create the infrastructure using terraform. And using helm provider to install and configure grafana and prometheus declaratively and have complete IaC.   
 This is advantageous as it is also used to automatically add dashboards, install plugins on grafana upon initial installation.  
